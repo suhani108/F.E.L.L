@@ -6,7 +6,7 @@ capture = cv2.VideoCapture('cam7.avi')
 time.sleep(2)
 
 # Checks if resolution is 720p
-if capture.get(3) != 1280 and capture.get(4) != 720:
+if capture.get(3) < 1274 and capture.get(4) < 720:
     messagebox.showerror("Error", "Camera resolution not accepted")
     exit(0)
 
