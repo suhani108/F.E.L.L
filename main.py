@@ -1,9 +1,14 @@
 import cv2
+from tkinter import messagebox
 import time
 
 capture = cv2.VideoCapture('cam7.avi')
 time.sleep(2)
 
+# Checks if resolution is 720p
+if capture.get(3) != 1280 and capture.get(4) != 720:
+    messagebox.showerror("Error", "Camera resolution not accepted")
+    exit(0)
 
 # Detect the moving part in the image and remove the still background
 backSubtractor = cv2.createBackgroundSubtractorKNN(history =350,detectShadows=False)
