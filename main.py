@@ -55,7 +55,6 @@ while(True):
             if maxArea > 2500: #If the area of the mask is greater than this then only there is human
                 if h < w:
                     counter += 1
-            
                 if counter > 17:
                     fall = True
                 if fall == True:
@@ -66,8 +65,7 @@ while(True):
                     fall = False
                     counter = 0 
                     cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
-
-
+                    
             cv2.imshow('F.E.L.L', frame)
             cv2.imshow('Maksed',foregroundMask)
 
