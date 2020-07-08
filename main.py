@@ -23,8 +23,8 @@ while(True):
     # Convert all the frames to gray scale and subtract the background
     try:
         bluredFrame = cv2.GaussianBlur(frame,(3,3),cv2.BORDER_DEFAULT)
-        gray = cv2.cvtColor(bluredFrame, cv2.COLOR_BGR2GRAY) # Convert the image to grayscale
-        foregroundMask = backSubtractor.apply(gray)  #background subtraction
+        gray = cv2.cvtColor(bluredFrame, cv2.COLOR_BGR2GRAY) 
+        foregroundMask = backSubtractor.apply(gray)  
         
         # Find contours of the object that is stored as foregroundmask in variable foregroundMask
         contours, _ = cv2.findContours(foregroundMask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -33,14 +33,13 @@ while(True):
         
             # A list will hold areas of all the moving objects in the frames
             areas = []
-            # Area of all moving object in the frame will be appended to a list
             for contour in contours:
                 area = cv2.contourArea(contour)
                 areas.append(area)
             
             #Find the Object with the maximum area that object would be checked for a fall
             maxArea = max(areas, default = 0)
-            maxAreaIdx = areas.index(maxArea) #index of object with maximum area
+            maxAreaIdx = areas.index(maxArea) 
             
             human = contours[maxAreaIdx]
             
