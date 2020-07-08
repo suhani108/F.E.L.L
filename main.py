@@ -23,10 +23,10 @@ while(True):
     try:
         bluredFrame = cv2.GaussianBlur(frame,(3,3),cv2.BORDER_DEFAULT)
         gray = cv2.cvtColor(bluredFrame, cv2.COLOR_BGR2GRAY) # Convert the image to grayscale
-        fgmask = backSubtractor.apply(gray)  #background subtraction
+        foregroundMask = backSubtractor.apply(gray)  #background subtraction
         
-        #Find contours of the object that is stored as foregroundmask in variable fgmask
-        contours, _ = cv2.findContours(fgmask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        #Find contours of the object that is stored as foregroundmask in variable foregroundMask
+        contours, _ = cv2.findContours(foregroundMask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         if contours:
         
@@ -45,7 +45,7 @@ while(True):
             human = contours[maxAreaIdx]
             
             #Draw contours against the object in masked image
-            cv2.drawContours(fgmask, [human], 0, (129,255,0), 10, maxLevel = 1)
+            cv2.drawContours(foregroundMask, [human], 0, (129,255,0), 10, maxLevel = 1)
             
             # Make a rectangle around the object with maximum area .
             x, y, w, h = cv2.boundingRect(human)
@@ -69,7 +69,7 @@ while(True):
 
 
             cv2.imshow('F.E.L.L', frame)
-            cv2.imshow('Maksed',fgmask)
+            cv2.imshow('Maksed',foregroundMask)
 
 
             if cv2.waitKey(33) == ord('q'):
