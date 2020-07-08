@@ -21,8 +21,8 @@ while(True):
     
     #Convert all the frame to gray scale and subtract the background
     try:
-        blured_frame = cv2.GaussianBlur(frame,(3,3),cv2.BORDER_DEFAULT)
-        gray = cv2.cvtColor(blured_frame, cv2.COLOR_BGR2GRAY) # Convert the image to grayscale
+        bluredFrame = cv2.GaussianBlur(frame,(3,3),cv2.BORDER_DEFAULT)
+        gray = cv2.cvtColor(bluredFrame, cv2.COLOR_BGR2GRAY) # Convert the image to grayscale
         fgmask = backSubtractor.apply(gray)  #background subtraction
         
         #Find contours of the object that is stored as foregroundmask in variable fgmask
