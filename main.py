@@ -50,8 +50,8 @@ while(True):
             x, y, w, h = cv2.boundingRect(human)
 
             
-            #If the height of the counters of the object is less than width
-            if maxArea > 2500: #If the area of the mask is greater than this then only there is human
+            # For the object with maximum area if height of 17 countours is less than width then fall is detected.
+            if maxArea > 2500:
                 if h < w:
                     counter += 1
                 if counter > 17:
