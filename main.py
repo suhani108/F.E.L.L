@@ -3,7 +3,10 @@ import cv2
 from tkinter import messagebox
 import time
 
-capture = cv2.VideoCapture('cam7.avi')
+haar_upper_body_cascade = cv2.CascadeClassifier("13405_18147_bundle_archive/haarcascade_upperbody.xml")
+haar_full_body_cascade = cv2.CascadeClassifier("13405_18147_bundle_archive/haarcascade_fullbody.xml")
+
+capture = cv2.VideoCapture(0)
 time.sleep(2)
 
 # Check if resolution is 720p
@@ -15,6 +18,7 @@ if capture.get(3) < 1274 and capture.get(4) < 720:
 backSubtractor = cv2.createBackgroundSubtractorKNN(history =350,detectShadows=False)
 counter = 0
 fall = False
+person = False
 
 while(True):
     # Convert the video into the frames
@@ -24,7 +28,29 @@ while(True):
     try:
         bluredFrame = cv2.GaussianBlur(frame,(3,3),cv2.BORDER_DEFAULT)
         gray = cv2.cvtColor(bluredFrame, cv2.COLOR_BGR2GRAY) 
-        foregroundMask = backSubtractor.apply(gray)  
+        foregroundMask = backSubtractor.apply(gray)
+        
+        #Check for human in frame
+        upper_body = haar_upper_body_cascade.detectMultiScale(
+            gray,
+            scaleFactor = 1.1,
+            minNeighbors = 5,
+            minSize = (50, 100), # Min size for valid detection, changes according to video size or body size in the video.
+            flags = cv2.CASCADE_SCALE_IMAGE
+        )
+        full_body = haar_full_body_cascade.detectMultiScale(
+            gray,
+            scaleFactor = 1.1,
+            minNeighbors = 5,
+            minSize = (50, 100), # Min size for valid detection, changes according to video size or body size in the video.
+            flags = cv2.CASCADE_SCALE_IMAGE
+        )
+        
+        
+        
+        if len(upper_body) == 1 or len(full_body) == 1:
+            person = True
+            print('Person')
         
         # Find contours of the object that is stored as foregroundmask in variable foregroundMask
         contours, _ = cv2.findContours(foregroundMask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -52,17 +78,18 @@ while(True):
             
             # For the object with maximum area if height of 17 countours is less than width then fall is detected.
             if maxArea > 2500:
-                if h < w:
+                if h < w and person == True:
                     counter += 1
                 if counter > 17:
                     fall = True
                 if fall == True:
                     cv2.putText(frame, 'Fall Detected', (x-10, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255,255,255), 2)
                     cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,255),2)
+                    person = False
                 #If the person stands up again
                 if h > w:
                     fall = False
-                    counter = 0 
+                    counter = 0
                     cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
                     
             cv2.imshow('F.E.L.L', frame)
