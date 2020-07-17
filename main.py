@@ -37,7 +37,7 @@ def humanDetection(frame,haar_upper_body_cascade,haar_full_body_cascade):
             ) 
     return upper_body , full_body
 
-#Make contour around object and return that and maxmium object area
+#Make contour around maxArea object and return contour info and area
 def getContourAroundObj(contours,foregroundMask):
     # A list will hold areas of all the moving objects in the frames
     areas = []
@@ -106,7 +106,9 @@ def main():
             contours, _ = cv2.findContours(foregroundMask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
             if contours:
+                #Get contour around maxArea object and maxArea value
                 x, y, w, h,maxArea = getContourAroundObj(contours,foregroundMask)
+
                 # For the object with maximum area if height of 17 countours is less than width then fall is detected.
                 if maxArea > 2500:
                     if h < w and personCount >= 1:
