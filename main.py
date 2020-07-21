@@ -4,6 +4,24 @@ import sys
 from tkinter import messagebox
 import time
 
+# Main Menu
+def mainMenu():
+    try:
+        inputType = int(input('Press 0 (Then Enter) for using computer camera or 1 (Then Enter) for specifying the video path: \n'))
+    except :
+        print('Please enter number not characters!')
+        exit(0)
+    if inputType == 0:
+        videoInput = 0
+        return videoInput
+    elif inputType == 1:
+        videoInput = input('Please Enter video File Path: ')
+        return videoInput
+    else:
+        print('Wrong input!')
+        exit(0)
+
+
 # Check Resolution of input
 def checkResolution(cap):
     if cap.get(3) < 1274 and cap.get(4) < 720:
@@ -63,32 +81,32 @@ def getContourAroundObj(contours,foregroundMask):
 
 
 def main():
+    videoInput = mainMenu()
     #Harr cascade model
     haar_upper_body_cascade = cv2.CascadeClassifier("13405_18147_bundle_archive/haarcascade_upperbody.xml")
     haar_full_body_cascade = cv2.CascadeClassifier("13405_18147_bundle_archive/haarcascade_fullbody.xml")
 
-    capture = cv2.VideoCapture('Test1.mp4')
+    capture = cv2.VideoCapture(videoInput)
     time.sleep(2)
 
     # Check if resolution is 720p
-    resolution = checkResolution(capture)
-    if resolution == 'Low resolution':
-        messagebox.showerror("Error", "Camera resolution not accepted")
-        sys.exit('Video Resolution not supported')
+    # resolution = checkResolution(capture)
+    # if resolution == 'Low resolution':
+    #     messagebox.showerror("Error", "Camera resolution not accepted")
+    #     sys.exit('Video Resolution not supported')
 
     # Detect the moving part in the image and remove the still background
     backSubtractor = cv2.createBackgroundSubtractorKNN(history =350,detectShadows=False)
     counter = 0
+    t0 = 0
+    arr = []
     fall = False
-    person = False
     personCount = 0
 
     while(True):
         # Convert the video into the frames
         ret, frame = capture.read()
-        frame = cv2.resize(frame, (640, 480))
-
-        
+        # frame = cv2.resize(frame, (640, 480))
         
         try:
             # Convert all the frames to gray scale and subtract the background
@@ -98,9 +116,8 @@ def main():
             #Check for human in frame
             upper_body , full_body = humanDetection(frame,haar_upper_body_cascade,haar_full_body_cascade)
             if len(upper_body) == 1 or len(full_body) == 1:
-                person = True
                 personCount += 1
-                print('Person')
+                # print('Person')
             
             # Find contours of the object that is stored as foregroundmask in variable foregroundMask
             contours, _ = cv2.findContours(foregroundMask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -112,24 +129,31 @@ def main():
                 # For the object with maximum area if height of 17 countours is less than width then fall is detected.
                 if maxArea > 2500:
                     if h < w and personCount >= 1:
+                        print('here')
+                        t0 = t0+time.time()
                         counter += 1
                     if counter > 17:
                         fall = True
+                        arr.append(t0)
                     if fall == True:
+                        print(arr[0]%60)
+                        # print(round((t1-t0)* 10**6,0)
                         cv2.putText(frame, 'Fall Detected', (x-10, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255,255,255), 2)
                         cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,255),2)
+                        t0 = 0
+                        arr =[]
                     #If the person stands up again
                     if h > w:
                         fall = False
                         counter = 0
+                        t0 = 0
                         if personCount >= 1:
                             cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
                         if personCount > 20:
                             personCount = 0
                 cv2.imshow('F.E.L.L', frame)
                 cv2.imshow('Maksed',foregroundMask)
-
-
+                
                 if cv2.waitKey(33) == ord('q'):
                     break
         except:
