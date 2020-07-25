@@ -100,19 +100,17 @@ def main():
 
     # Capture live video refers SRSDocument(F.R.3.1.1)
     capture = cv2.VideoCapture(videoInput)
-    time.sleep(2)
 
     # Check if resolution is 720p refers SRSDocument(N.F.R 3.2.1)
-    resolution = checkResolution(capture)
-    if resolution == 'Low resolution':
-        messagebox.showerror("Error", "Camera resolution not accepted")
-        sys.exit('Video Resolution not supported')
+    # resolution = checkResolution(capture)
+    # if resolution == 'Low resolution':
+    #     messagebox.showerror("Error", "Camera resolution not accepted")
+    #     sys.exit('Video Resolution not supported')
 
     # Detect the moving part in the image and remove the still background
     backSubtractor = cv2.createBackgroundSubtractorKNN(history=350,
                                                        detectShadows=False)
     counter = 0
-    t0 = 0
     arr = []
     fall = False
     personCount = 0
@@ -120,7 +118,10 @@ def main():
     while (True):
         # Convert the video into the frames refers SoftwareDesignDocument(Component1)
         ret, frame = capture.read()
-        # frame = cv2.resize(frame, (640, 480))
+        try:
+            frame = cv2.resize(frame, (640, 480))
+        except:
+            sys.exit('Video Finished \nTry using different video.')
 
         try:
             # Convert all the frames to gray scale and subtract the background refers SoftwareDesignDocument(Component2)
@@ -142,37 +143,41 @@ def main():
                 x, y, w, h, maxArea = getContourAroundObj(
                     contours, foregroundMask)
 
+                if counter == 2:
+                    t0 = time.process_time()
+                    arr.append(t0)
+                if counter == 17:
+                    t1 = time.process_time()
                 # For the object with maximum area if height of 17 countours is less than width then fall is detected.
                 if maxArea > 2500:
-                    if h < w and personCount >= 1:
-                        t0 = t0 + time.time()
+                    if h < w and personCount >= 2:
                         counter += 1
+                        t0 = time.process_time()
                     if counter > 17:
                         fall = True
-                        arr.append(t0)
+                        difference = t1 - min(arr)
+                        print("Difference of chnage in contour :", difference)
                     # Notify the user if the fall is detected refers SRSDocument(F.R.3.1.2) and  SoftwareDesignDocument(Component6)
-                    if fall == True:
-                        print(arr[0] % 60)
+                    if fall == True and difference < 5:
                         cv2.putText(frame, 'Fall Detected', (x - 10, y - 10),
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.9,
                                     (255, 255, 255), 2)
                         cv2.rectangle(frame, (x, y), (x + w, y + h),
                                       (0, 0, 255), 2)
-                        t0 = 0
-                        arr = []
                     #If the person stands up again
                     if h > w:
+                        if fall == True:
+                            arr = []
                         fall = False
                         counter = 0
-                        t0 = 0
-                        if personCount >= 1:
+                        if personCount >= 2:
                             cv2.rectangle(frame, (x, y), (x + w, y + h),
                                           (0, 255, 0), 2)
                         if personCount > 20:
                             personCount = 0
                 # Output camera video and masked video on screen
                 cv2.imshow('F.E.L.L', frame)
-                cv2.imshow('Maksed', foregroundMask)
+                # cv2.imshow('Maksed', foregroundMask)
 
                 if cv2.waitKey(33) == ord('q'):
                     break
