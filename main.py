@@ -143,6 +143,7 @@ def main():
                 x, y, w, h, maxArea = getContourAroundObj(
                     contours, foregroundMask)
 
+                #Time being used for sleep detection
                 if counter == 2:
                     t0 = time.process_time()
                     arr.append(t0)
@@ -157,8 +158,9 @@ def main():
                         fall = True
                         difference = t1 - min(arr)
                         print("Difference of chnage in contour :", difference)
-                    # Notify the user if the fall is detected refers SRSDocument(F.R.3.1.2) and  SoftwareDesignDocument(Component6)
-                    if fall == True and difference < 5:
+
+                    #If difference in time of change in contour is less than 5 then only there is fall Notify the user if the fall is detected refers SRSDocument(F.R.3.1.2) and  SoftwareDesignDocument(Component6)
+                    if fall == True and difference < 6:
                         cv2.putText(frame, 'Fall Detected', (x - 10, y - 10),
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.9,
                                     (255, 255, 255), 2)
@@ -167,7 +169,7 @@ def main():
                     #If the person stands up again
                     if h > w:
                         if fall == True:
-                            arr = []
+                            arr = []  #Time array rest if the person stand up
                         fall = False
                         counter = 0
                         if personCount >= 2:
