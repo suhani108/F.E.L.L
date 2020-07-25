@@ -21,19 +21,19 @@ def mainMenu():
         videoInput = 0
         return videoInput
     elif inputType == 1:
-        videoInput = input('Please Enter video File Path: ')
+        videoInput = input('Please Enter video File Path: ') 
         return videoInput
     else:
-        print('Wrong input!')
+        print('Wrong input!')  # if the input is wrong, message is printed on screen
         exit(0)
 
 
 # Check if input resolution is 720p refers SRSDocument(N.F.R 3.2.1)
 def checkResolution(cap):
     if cap.get(3) < 1274 and cap.get(4) < 720:
-        return 'Low resolution'
+        return 'Low resolution'  #if the resolution is low
     else:
-        return 'Resolution ok'
+        return 'Resolution ok'   # if the resolution is ok
 
 
 # Create forground mask refers SoftwareDesignDocument(Component2)
